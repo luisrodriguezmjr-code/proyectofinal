@@ -1,6 +1,5 @@
 
 ```c
-    
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -44,36 +43,34 @@ void mostrarFraseMotivacional() {
     printf("======================================================\n\n");
 }
 
-// --- MÓDULO D: FUNCIONES DE CRONÓMETRO Y CALORÍAS ---
-
-// 1. Configurar tiempo manual para rutina libre (máximo 5 minutos y valores positivos)
+// Configurar tiempo manual para rutina libre (máximo 30 minutos y valores positivos)
 int configurarTiempoManual() {
     int minutos = 0;
     do {
         printf("\n⏱️ CONFIGURACION DE RUTINA LIBRE:\n");
-        printf("Ingresa los minutos que deseas entrenar (Debe ser mayor a 0 y maximo 5 min): ");
+        printf("Ingresa los minutos que deseas entrenar (Debe ser mayor a 0 y maximo 30 min): ");
         scanf("%d", &minutos);
         
-        if (minutos <= 0 || minutos > 5) {
-            printf("\n❌ Error: El tiempo debe ser un valor positivo y no puede pasar de 5 minutos. Intenta de nuevo.\n");
+        if (minutos <= 0 || minutos > 30) {
+            printf("\n❌ Error: El tiempo debe ser un valor positivo y no puede pasar de 30 minutos. Intenta de nuevo.\n");
         }
-    } while (minutos <= 0 || minutos > 5);
+    } while (minutos <= 0 || minutos > 30);
     
-    return minutos; // Retorna los minutos configurados
+    return minutos;
 }
 
-// 2. Iniciar rutina con cronómetro (diferencia "En curso" y "Finalizado", formato MM:SS)
-int inciarRutinaCronometro(int segundosTotales) {
+// Iniciar cronómetro para un ejercicio específico
+int iniciarCronometroEjercicio(int segundosTotales, const char* nombreEjercicio) {
     int tiempoRestante = segundosTotales;
     
-    printf("\n⏱️ ESTADO: En curso...\n");
+    printf("\n⏱️ EJERCICIO EN CURSO: %s\n", nombreEjercicio);
     printf("Presiona Ctrl+C en tu teclado si deseas forzar la salida.\n\n");
     
     while (tiempoRestante > 0) {
         int minutos = tiempoRestante / 60;
         int segundos = tiempoRestante % 60;
         
-        printf("\rTiempo restante: %02d:%02d ", minutos, segundos);
+        printf("\rTiempo restante del ejercicio: %02d:%02d ", minutos, segundos);
         fflush(stdout);
         
         #ifdef _WIN32
@@ -86,11 +83,11 @@ int inciarRutinaCronometro(int segundosTotales) {
         tiempoRestante--;
     }
     
-    printf("\n\n🎉 ESTADO: Finalizado con exito.\n");
-    return 1; // Retorna 1 si llegó a cero por completo
+    printf("\n\n🎉 ¡Ejercicio finalizado con exito!\n");
+    return 1;
 }
 
-// 3. Calcular calorías basado en el factor del nivel y los minutos
+// Calcular calorías basado en el factor del nivel y los minutos totales
 float calcularCalorias(int minutos, float factorCalorias) {
     return minutos * factorCalorias;
 }
@@ -100,7 +97,8 @@ int main() {
     float peso = 0.0;
     float alturaCm = 0.0;
     int opcionNivel = 0;
-    int contadorRutinas = 0; // Contador automático de rutinas realizadas
+    int contadorRutinas = 0;
+    int opcionMenuPrincipal = 0;
     
     limpiarPantalla();
     printf("🌱 --- BIENVENIDO A FITLIFE APP --- 🌱\n");
@@ -160,14 +158,13 @@ int main() {
     printf("-> Beber 2 litros de agua al día.\n");
     printf("------------------------------------------------------\n");
     
-    // Módulo C: Entrenamiento Personalizado (Rutina predefinida)
-    int tiempoMinutosRutina = 0;
+    // Definición de rutinas usando Arrays de Estructuras por nivel
     int cantidadEjercicios = 3;
     Ejercicio rutinaAsignada[3];
-    
+    int tiempoMinutosRutina = 0;
+
     if (opcionNivel == 1) {
         tiempoMinutosRutina = 15;
-        printf("💪 RUTINA ASIGNADA: NIVEL PRINCIPIANTE (15 min)\n\n");
         strcpy(rutinaAsignada[0].nombre, "Sentadillas libres"); 
         strcpy(rutinaAsignada[0].guia, "Baja la cadera como si te sentaras en una silla."); 
         strcpy(rutinaAsignada[0].series, "3 series x 10 rep");
@@ -177,11 +174,10 @@ int main() {
         strcpy(rutinaAsignada[1].series, "3 series x 8 rep");
         
         strcpy(rutinaAsignada[2].nombre, "Plancha Abdominal"); 
-        strcpy(rutinaAsignada[2].guia, "Apoya antebrazos y mantén el cuerpo alineado."); 
+        strcpy(rutinaAsignada[2].guia, "Apoya antebrazos y manten el cuerpo alineado."); 
         strcpy(rutinaAsignada[2].series, "3 series x 20 seg");
     } else if (opcionNivel == 2) {
         tiempoMinutosRutina = 25;
-        printf("💪 RUTINA ASIGNADA: NIVEL NORMAL (25 min)\n\n");
         strcpy(rutinaAsignada[0].nombre, "Sentadillas con salto"); 
         strcpy(rutinaAsignada[0].guia, "Haz una sentadilla clásica y salta."); 
         strcpy(rutinaAsignada[0].series, "4 series x 12 rep");
@@ -195,7 +191,6 @@ int main() {
         strcpy(rutinaAsignada[2].series, "4 series x 10 por pierna");
     } else {
         tiempoMinutosRutina = 40;
-        printf("💪 RUTINA ASIGNADA: NIVEL EXPERTO (40 min)\n\n");
         strcpy(rutinaAsignada[0].nombre, "Burpees"); 
         strcpy(rutinaAsignada[0].guia, "Flexión, encoge piernas y salto explosivo."); 
         strcpy(rutinaAsignada[0].series, "4 series x 15 rep");
@@ -208,48 +203,80 @@ int main() {
         strcpy(rutinaAsignada[2].guia, "Un pie atras en una silla y baja."); 
         strcpy(rutinaAsignada[2].series, "4 series x 12 por pierna");
     }
-    
-    for (int i = 0; i < cantidadEjercicios; i++) {
-        printf("%d. %s (%s)\n", i + 1, rutinaAsignada[i].nombre, rutinaAsignada[i].series);
-        printf("   Guía: %s\n\n", rutinaAsignada[i].guia);
-    }
-    printf("======================================================\n");
-    
-    // Módulo D: Elección entre Rutina Predefinida o Rutina Libre
-    int tipoEntrenamiento = 0;
-    printf("¿Cómo deseas entrenar hoy?\n");
-    printf("1. Usar la rutina predefinida asignada\n");
-    printf("2. Configurar una rutina libre (Personalizada, máx. 5 min)\n");
-    printf("Elige una opción (1-2): ");
-    scanf("%d", &tipoEntrenamiento);
-    
-    int minutosFinales = 0;
-    if (tipoEntrenamiento == 1) {
-        minutosFinales = tiempoMinutosRutina;
-    } else {
-        minutosFinales = configurarTiempoManual();
-    }
-    
-    char comenzar;
-    printf("\n¿Deseas iniciar el cronómetro ahora? (s/n): ");
-    scanf(" %c", &comenzar);
-    
-    if (comenzar == 's' || comenzar == 'S') {
-        int segundosTotales = minutosFinales * 60;
-        
-        int estadoFinalizado = inciarRutinaCronometro(segundosTotales);
-        
-        if (estadoFinalizado == 1) {
-            contadorRutinas++;
-            float totalCalorias = calcularCalorias(minutosFinales, factorCalorias);
-            
-            printf("\n--- REPORTE DE ENTRENAMIENTO ---\n");
-            printf("🔥 Calorías quemadas: %.1f kcal\n", totalCalorias);
-            printf("📈 Rutinas completadas registradas: %d\n", contadorRutinas);
+
+    // Bucle principal para mantenerse dentro de la app tras terminar rutinas
+    do {
+        printf("\n======================================================\n");
+        printf("💪 RUTINA ASIGNADA PARA TU NIVEL (%d min totales)\n\n", tiempoMinutosRutina);
+        for (int i = 0; i < cantidadEjercicios; i++) {
+            printf("%d. %s (%s)\n", i + 1, rutinaAsignada[i].nombre, rutinaAsignada[i].series);
+            printf("   Guia: %s\n\n", rutinaAsignada[i].guia);
         }
-    } else {
-        printf("\n¡Plan guardado! Entrena cuando estés listo. ¡Hasta luego! 🌱\n");
-    }
+        printf("======================================================\n");
+        
+        // Módulo D: Elección entre Rutina Predefinida o Rutina Libre
+        int tipoEntrenamiento = 0;
+        printf("¿Como deseas entrenar hoy?\n");
+        printf("1. Usar la rutina predefinida asignada\n");
+        printf("2. Configurar una rutina libre (Personalizada, máx. 30 min)\n");
+        printf("Elige una opción (1-2): ");
+        scanf("%d", &tipoEntrenamiento);
+        
+        int minutosFinales = 0;
+        if (tipoEntrenamiento == 1) {
+            minutosFinales = tiempoMinutosRutina;
+        } else {
+            minutosFinales = configurarTiempoManual();
+        }
+        
+        char comenzar;
+        printf("\n¿Deseas iniciar el entrenamiento por ejercicios ahora? (s/n): ");
+        scanf(" %c", &comenzar);
+        
+        if (comenzar == 's' || comenzar == 'S') {
+            int minutosPorEjercicio = minutosFinales / cantidadEjercicios;
+            if (minutosPorEjercicio < 1) minutosPorEjercicio = 1; 
+            int segundosPorEjercicio = minutosPorEjercicio * 60;
+            
+            int rutinaCompletaExitosa = 1;
+
+            for (int i = 0; i < cantidadEjercicios; i++) {
+                printf("\n--------------------------------------------------\n");
+                printf("Iniciando ejercicio %d de %d:\n", i + 1, cantidadEjercicios);
+                printf("• %s (%s)\n", rutinaAsignada[i].nombre, rutinaAsignada[i].series);
+                printf("• Guia: %s\n", rutinaAsignada[i].guia);
+                
+                int resultado = iniciarCronometroEjercicio(segundosPorEjercicio, rutinaAsignada[i].nombre);
+                
+                if (resultado != 1) {
+                    rutinaCompletaExitosa = 0;
+                    break;
+                }
+            }
+            
+            if (rutinaCompletaExitosa == 1) {
+                contadorRutinas++;
+                float totalCalorias = calcularCalorias(minutosFinales, factorCalorias);
+                
+                printf("\n--- REPORTE DE ENTRENAMIENTO ---\n");
+                printf("🔥 Calorias quemadas: %.1f kcal\n", totalCalorias);
+                printf("📈 Rutinas completadas registradas en total: %d\n", contadorRutinas);
+            }
+        } else {
+            printf("\n¡Plan guardado para luego!\n");
+        }
+        
+        // Menú de control para decidir si sigue en la app o sale por completo
+        printf("\n======================================================\n");
+        printf("¿Qué deseas hacer ahora?\n");
+        printf("1. Realizar otra rutina (Continuar en la app)\n");
+        printf("2. Salir del programa\n");
+        printf("Elige una opción (1-2): ");
+        scanf("%d", &opcionMenuPrincipal);
+        
+    } while (opcionMenuPrincipal == 1);
+    
+    printf("\n¡Gracias por usar FitLife App! Sigue entrenando con constancia. ¡Hasta luego, 🌱\n");
     
     return 0;
 }
